@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор нерухомості</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-hover: #66BB6A;
+            --text-color: #333333;
+            --bg-color: #f0f0f0;
+            --panel-bg: #ffffff;
+            --input-bg: #ffffff;
+            --sale-amount-bg: #e6f7ff;
+            --sale-amount-color: #0066cc;
+            --border-color: #cccccc;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 10px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .panel-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .control-panel {
+            margin-bottom: 15px;
+        }
+
+        .header-input {
+            width: 100%;
+            height: 80px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            resize: none;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .form-group label {
+            width: 200px;
+            margin-right: 10px;
+        }
+
+        .form-control {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--input-bg);
+        }
+
+        .sale-amount {
+            background-color: var(--sale-amount-bg);
+            color: var(--sale-amount-color);
+            font-weight: bold;
+            border: 2px solid #b3e0ff;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-small {
+            padding: 3px 8px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            margin-right: 8px;
+        }
+
+        .output-text {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: white;
+            resize: none;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .total-amount {
+            font-weight: bold;
+            font-size: 16px;
+            margin-right: 20px;
+            display: inline-block;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: fadeInOut 1.3s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .form-group label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .form-control {
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel control-panel">
+            <div class="panel-title">Панель управління</div>
+            <textarea id="header-input" class="header-input" placeholder="Введіть заголовок..."></textarea>
+            
+            <div class="form-group">
+                <label for="property-type">Тип об'єкта:</label>
+                <select id="property-type" class="form-control">
+                    <option value="квартира">квартира</option>
+                    <option value="нежитлове приміщення">нежитлове приміщення</option>
+                    <option value="кімната">кімната</option>
+                    <option value="гараж">гараж</option>
+                    <option value="будинок">будинок</option>
+                    <option value="земля">земля</option>
+                    <option value="земля с/г">земля с/г</option>
+                    <option value="земля + будинок">земля + будинок</option>
+                    <option value="земля + гараж (або нп)">земля + гараж (або нп)</option>
+                    <option value="земля с/г + садовий будинок">земля с/г + садовий будинок</option>
+                    <option value="інше нерухоме майно">інше нерухоме майно</option>
+                </select>
+            </div>
+            
+            <div id="property-fields"></div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-title">Розрахунок</div>
+            <textarea id="output-text" class="output-text" readonly></textarea>
+            
+            <div style="margin-top: 10px;">
+                <button id="copy-btn" class="btn">Скопіювати розрахунок</button>
+                <span id="total-exact" class="total-amount">загальна сума точно: 0,00</span>
+                <span id="total-rounded" class="total-amount">загальна сума: 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Основні змінні
+            const propertyTypeSelect = document.getElementById('property-type');
+            const propertyFieldsContainer = document.getElementById('property-fields');
+            const headerInput = document.getElementById('header-input');
+            const outputText = document.getElementById('output-text');
+            const copyBtn = document.getElementById('copy-btn');
+            const totalExact = document.getElementById('total-exact');
+            const totalRounded = document.getElementById('total-rounded');
+            
+            let propertyData = {};
+            
+            // Ініціалізація
+            createPropertyFields();
+            
+            // Обробники подій
+            propertyTypeSelect.addEventListener('change', createPropertyFields);
+            headerInput.addEventListener('input', updateCalculation);
+            copyBtn.addEventListener('click', copyCalculation);
+            
+            // Функції
+            function getPropertiesList(propertyType) {
+                if (propertyType.includes('+')) {
+                    return propertyType.split('+').map(part => part.trim());
+                }
+                return [propertyType];
+            }
+            
+            function getDefaultOformlennya(propertyType) {
+                const defaults = {
+                    "земля с/г": "9000",
+                    "земля + будинок": "16000",
+                    "земля + гараж (або нп)": "12000",
+                    "земля с/г + садовий будинок": "17000",
+                    "будинок": "10000"
+                };
+                return defaults[propertyType] || "8000";
+            }
+            
+            function calculateBankCommission(amount) {
+                const commission = amount * 0.01;
+                return Math.max(commission, 25);
+            }
+            
+            function formatNumber(num) {
+                return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            }
+            
+            function createPropertyFields() {
+                propertyFieldsContainer.innerHTML = '';
+                propertyData = {};
+                
+                const propertyType = propertyTypeSelect.value;
+                const properties = getPropertiesList(propertyType);
+                
+                properties.forEach((prop, propIndex) => {
+                    // Сума продажу
+                    const saleAmountId = `sale-amount-${propIndex}`;
+                    propertyData[prop] = { saleAmount: '0' };
+                    
+                    const saleAmountGroup = document.createElement('div');
+                    saleAmountGroup.className = 'form-group';
+                    saleAmountGroup.innerHTML = `
+                        <label for="${saleAmountId}">Сума продажу ${prop} (грн):</label>
+                        <input type="text" id="${saleAmountId}" class="form-control sale-amount" value="0">
+                    `;
+                    propertyFieldsContainer.appendChild(saleAmountGroup);
+                    
+                    const saleAmountInput = document.getElementById(saleAmountId);
+                    saleAmountInput.addEventListener('input', function() {
+                        propertyData[prop].saleAmount = this.value;
+                        updateCalculation();
+                    });
+                    
+                    // Мито
+                    const dutyCheckId = `duty-check-${propIndex}`;
+                    const dutyAmountId = `duty-amount-${propIndex}`;
+                    propertyData[prop].duty = { checked: true, amount: '0' };
+                    
+                    const dutyGroup = document.createElement('div');
+                    dutyGroup.className = 'form-group';
+                    dutyGroup.innerHTML = `
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="${dutyCheckId}" checked>
+                            1% мито ${prop}:
+                        </label>
+                        <input type="text" id="${dutyAmountId}" class="form-control" value="0,00" readonly>
+                    `;
+                    propertyFieldsContainer.appendChild(dutyGroup);
+                    
+                    const dutyCheck = document.getElementById(dutyCheckId);
+                    const dutyAmount = document.getElementById(dutyAmountId);
+                    
+                    dutyCheck.addEventListener('change', function() {
+                        propertyData[prop].duty.checked = this.checked;
+                        updateCalculation();
+                    });
+                    
+                    // Збір до ПФ (якщо не земля)
+                    if (!prop.toLowerCase().includes('земля')) {
+                        const pfCheckId = `pf-check-${propIndex}`;
+                        const pfAmountId = `pf-amount-${propIndex}`;
+                        propertyData[prop].pf = { checked: true, amount: '0,00 + 0,00' };
+                        
+                        const pfGroup = document.createElement('div');
+                        pfGroup.className = 'form-group';
+                        pfGroup.innerHTML = `
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="${pfCheckId}" checked>
+                                1% збір до ПФ ${prop}:
+                            </label>
+                            <input type="text" id="${pfAmountId}" class="form-control" value="0,00 + 0,00" readonly>
+                        `;
+                        propertyFieldsContainer.appendChild(pfGroup);
+                        
+                        const pfCheck = document.getElementById(pfCheckId);
+                        const pfAmount = document.getElementById(pfAmountId);
+                        
+                        pfCheck.addEventListener('change', function() {
+                            propertyData[prop].pf.checked = this.checked;
+                            updateCalculation();
+                        });
+                    }
+                    
+                    // Податки
+                    const taxSelectId = `tax-select-${propIndex}`;
+                    propertyData[prop].taxOption = prop.toLowerCase().includes('нежитлове приміщення') || 
+                                                 prop.toLowerCase().includes('гараж') ? 
+                                                 '5% ПДФО + 5% військовий збір' : 'без податків';
+                    
+                    const taxGroup = document.createElement('div');
+                    taxGroup.className = 'form-group';
+                    taxGroup.innerHTML = `
+                        <label for="${taxSelectId}">Податки ${prop}:</label>
+                        <select id="${taxSelectId}" class="form-control">
+                            <option value="без податків">без податків</option>
+                            <option value="5% ПДФО + 5% військовий збір">5% ПДФО + 5% військовий збір</option>
+                            <option value="18% ПДФО + 5% військовий збір">18% ПДФО + 5% військовий збір</option>
+                        </select>
+                    `;
+                    propertyFieldsContainer.appendChild(taxGroup);
+                    
+                    const taxSelect = document.getElementById(taxSelectId);
+                    taxSelect.value = propertyData[prop].taxOption;
+                    
+                    taxSelect.addEventListener('change', function() {
+                        propertyData[prop].taxOption = this.value;
+                        updateCalculation();
+                    });
+                    
+                    // ПДФО
+                    const pdfoAmountId = `pdfo-amount-${propIndex}`;
+                    propertyData[prop].pdfo = '0,00 + 0,00';
+                    
+                    const pdfoGroup = document.createElement('div');
+                    pdfoGroup.className = 'form-group';
+                    pdfoGroup.innerHTML = `
+                        <label for="${pdfoAmountId}">ПДФО ${prop}:</label>
+                        <input type="text" id="${pdfoAmountId}" class="form-control" value="0,00 + 0,00" readonly>
+                    `;
+                    propertyFieldsContainer.appendChild(pdfoGroup);
+                    
+                    // Військовий збір
+                    const militaryAmountId = `military-amount-${propIndex}`;
+                    propertyData[prop].military = '0,00 + 0,00';
+                    
+                    const militaryGroup = document.createElement('div');
+                    militaryGroup.className = 'form-group';
+                    militaryGroup.innerHTML = `
+                        <label for="${militaryAmountId}">Військовий збір ${prop}:</label>
+                        <input type="text" id="${militaryAmountId}" class="form-control" value="0,00 + 0,00" readonly>
+                    `;
+                    propertyFieldsContainer.appendChild(militaryGroup);
+                });
+                
+                // Оформлення
+                const oformlennyaCheckId = 'oformlennya-check';
+                const oformlennyaAmountId = 'oformlennya-amount';
+                propertyData.oformlennya = { 
+                    checked: true, 
+                    amount: getDefaultOformlennya(propertyType) 
+                };
+                
+                const oformlennyaGroup = document.createElement('div');
+                oformlennyaGroup.className = 'form-group';
+                oformlennyaGroup.innerHTML = `
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="${oformlennyaCheckId}" checked>
+                        Оформлення
+                    </label>
+                    <input type="text" id="${oformlennyaAmountId}" class="form-control" value="${propertyData.oformlennya.amount}">
+                    <button class="btn btn-small decrease-btn" data-target="${oformlennyaAmountId}" data-amount="1000">-</button>
+                    <button class="btn btn-small increase-btn" data-target="${oformlennyaAmountId}" data-amount="1000">+</button>
+                `;
+                propertyFieldsContainer.appendChild(oformlennyaGroup);
+                
+                const oformlennyaCheck = document.getElementById(oformlennyaCheckId);
+                const oformlennyaAmount = document.getElementById(oformlennyaAmountId);
+                
+                oformlennyaCheck.addEventListener('change', function() {
+                    propertyData.oformlennya.checked = this.checked;
+                    updateCalculation();
+                });
+                
+                oformlennyaAmount.addEventListener('input', function() {
+                    propertyData.oformlennya.amount = this.value;
+                    updateCalculation();
+                });
+                
+                // Квитанції
+                const kvitanciiCheckId = 'kvitancii-check';
+                const kvitanciiAmountId = 'kvitancii-amount';
+                propertyData.kvitancii = { checked: true, amount: '1500' };
+                
+                const kvitanciiGroup = document.createElement('div');
+                kvitanciiGroup.className = 'form-group';
+                kvitanciiGroup.innerHTML = `
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="${kvitanciiCheckId}" checked>
+                        Квитанції
+                    </label>
+                    <input type="text" id="${kvitanciiAmountId}" class="form-control" value="1500">
+                    <button class="btn btn-small decrease-btn" data-target="${kvitanciiAmountId}" data-amount="500">-</button>
+                    <button class="btn btn-small increase-btn" data-target="${kvitanciiAmountId}" data-amount="500">+</button>
+                `;
+                propertyFieldsContainer.appendChild(kvitanciiGroup);
+                
+                const kvitanciiCheck = document.getElementById(kvitanciiCheckId);
+                const kvitanciiAmount = document.getElementById(kvitanciiAmountId);
+                
+                kvitanciiCheck.addEventListener('change', function() {
+                    propertyData.kvitancii.checked = this.checked;
+                    updateCalculation();
+                });
+                
+                kvitanciiAmount.addEventListener('input', function() {
+                    propertyData.kvitancii.amount = this.value;
+                    updateCalculation();
+                });
+                
+                // Оцінка для кожного об'єкта
+                properties.forEach((prop, propIndex) => {
+                    const ocinkaCheckId = `ocinka-check-${propIndex}`;
+                    const ocinkaAmountId = `ocinka-amount-${propIndex}`;
+                    propertyData[prop].ocinka = { checked: true, amount: '1000' };
+                    
+                    const ocinkaGroup = document.createElement('div');
+                    ocinkaGroup.className = 'form-group';
+                    ocinkaGroup.innerHTML = `
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="${ocinkaCheckId}" checked>
+                            Оцінка ${prop}
+                        </label>
+                        <input type="text" id="${ocinkaAmountId}" class="form-control" value="1000">
+                    `;
+                    propertyFieldsContainer.appendChild(ocinkaGroup);
+                    
+                    const ocinkaCheck = document.getElementById(ocinkaCheckId);
+                    const ocinkaAmount = document.getElementById(ocinkaAmountId);
+                    
+                    ocinkaCheck.addEventListener('change', function() {
+                        propertyData[prop].ocinka.checked = this.checked;
+                        updateCalculation();
+                    });
+                    
+                    ocinkaAmount.addEventListener('input', function() {
+                        propertyData[prop].ocinka.amount = this.value;
+                        updateCalculation();
+                    });
+                });
+                
+                // Витяг ДЗК (якщо земля)
+                if (propertyType.toLowerCase().includes('земля')) {
+                    const dzkCheckId = 'dzk-check';
+                    const dzkAmountId = 'dzk-amount';
+                    propertyData.dzk = { checked: true, amount: '1000' };
+                    
+                    const dzkGroup = document.createElement('div');
+                    dzkGroup.className = 'form-group';
+                    dzkGroup.innerHTML = `
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="${dzkCheckId}" checked>
+                            Витяг ДЗК
+                        </label>
+                        <input type="text" id="${dzkAmountId}" class="form-control" value="1000">
+                    `;
+                    propertyFieldsContainer.appendChild(dzkGroup);
+                    
+                    const dzkCheck = document.getElementById(dzkCheckId);
+                    const dzkAmount = document.getElementById(dzkAmountId);
+                    
+                    dzkCheck.addEventListener('change', function() {
+                        propertyData.dzk.checked = this.checked;
+                        updateCalculation();
+                    });
+                    
+                    dzkAmount.addEventListener('input', function() {
+                        propertyData.dzk.amount = this.value;
+                        updateCalculation();
+                    });
+                }
+                
+                // Заява с/г (якщо земля с/г)
+                if (propertyType.toLowerCase().includes('земля с/г')) {
+                    const sgCheckId = 'sg-check';
+                    const sgAmountId = 'sg-amount';
+                    propertyData.sg = { checked: true, amount: '700' };
+                    
+                    const sgGroup = document.createElement('div');
+                    sgGroup.className = 'form-group';
+                    sgGroup.innerHTML = `
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="${sgCheckId}" checked>
+                            Заява с/г
+                        </label>
+                        <input type="text" id="${sgAmountId}" class="form-control" value="700">
+                    `;
+                    propertyFieldsContainer.appendChild(sgGroup);
+                    
+                    const sgCheck = document.getElementById(sgCheckId);
+                    const sgAmount = document.getElementById(sgAmountId);
+                    
+                    sgCheck.addEventListener('change', function() {
+                        propertyData.sg.checked = this.checked;
+                        updateCalculation();
+                    });
+                    
+                    sgAmount.addEventListener('input', function() {
+                        propertyData.sg.amount = this.value;
+                        updateCalculation();
+                    });
+                }
+                
+                // Згода на продаж/купівлю
+                ['продаж', 'купівлю'].forEach((item, index) => {
+                    const zgodaCheckId = `zgoda-check-${index}`;
+                    const zgodaAmountId = `zgoda-amount-${index}`;
+                    propertyData[`zgoda_${item}`] = { checked: false, amount: '500' };
+                    
+                    const zgodaGroup = document.createElement('div');
+                    zgodaGroup.className = 'form-group';
+                    zgodaGroup.innerHTML = `
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="${zgodaCheckId}">
+                            Згода на ${item}
+                        </label>
+                        <input type="text" id="${zgodaAmountId}" class="form-control" value="500">
+                        <button class="btn btn-small decrease-btn" data-target="${zgodaAmountId}" data-amount="500">-</button>
+                        <button class="btn btn-small increase-btn" data-target="${zgodaAmountId}" data-amount="500">+</button>
+                    `;
+                    propertyFieldsContainer.appendChild(zgodaGroup);
+                    
+                    const zgodaCheck = document.getElementById(zgodaCheckId);
+                    const zgodaAmount = document.getElementById(zgodaAmountId);
+                    
+                    zgodaCheck.addEventListener('change', function() {
+                        propertyData[`zgoda_${item}`].checked = this.checked;
+                        updateCalculation();
+                    });
+                    
+                    zgodaAmount.addEventListener('input', function() {
+                        propertyData[`zgoda_${item}`].amount = this.value;
+                        updateCalculation();
+                    });
+                });
+                
+                // Обробники кнопок +/-
+                document.querySelectorAll('.increase-btn, .decrease-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const targetId = this.getAttribute('data-target');
+                        const amount = parseFloat(this.getAttribute('data-amount')) || 0;
+                        const input = document.getElementById(targetId);
+                        
+                        try {
+                            let currentValue = parseFloat(input.value.replace(/,/g, '').replace(/ /g, '')) || 0;
+                            if (this.classList.contains('increase-btn')) {
+                                currentValue += amount;
+                            } else {
+                                currentValue = Math.max(0, currentValue - amount);
+                            }
+                            
+                            input.value = currentValue.toFixed(0);
+                            input.dispatchEvent(new Event('input'));
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    });
+                });
+                
+                updateCalculation();
+            }
+            
+            function updateCalculation() {
+                const properties = getPropertiesList(propertyTypeSelect.value);
+                let output = [];
+                let total = 0;
+                
+                // Додаємо заголовок, якщо він є
+                const header = headerInput.value.trim();
+                if (header) {
+                    output.push(header);
+                }
+                
+                // Перевіряємо, чи є помилки у введених даних
+                let hasError = false;
+                
+                properties.forEach(prop => {
+                    const saleAmountStr = propertyData[prop].saleAmount.replace(/,/g, '').replace(/ /g, '');
+                    
+                    if (saleAmountStr && !/^\d*\.?\d*$/.test(saleAmountStr)) {
+                        output.push(`Помилка: Некоректне значення у 'Сума продажу ${prop}'`);
+                        hasError = true;
+                        return;
+                    }
+                    
+                    const saleAmount = parseFloat(saleAmountStr) || 0;
+                    output.push(`СУМА ПРОДАЖУ ${prop.toUpperCase()}: ${formatNumber(saleAmount)}`);
+                    
+                    // Мито
+                    if (propertyData[prop].duty.checked) {
+                        const duty = saleAmount * 0.01;
+                        propertyData[prop].duty.amount = formatNumber(duty);
+                        document.getElementById(`duty-amount-${properties.indexOf(prop)}`).value = propertyData[prop].duty.amount;
+                        output.push(`1% мито - ${propertyData[prop].duty.amount}`);
+                        total += duty;
+                    }
+                    
+                    // Збір до ПФ (якщо не земля)
+                    if (!prop.toLowerCase().includes('земля') && propertyData[prop].pf && propertyData[prop].pf.checked) {
+                        const pf = saleAmount * 0.01;
+                        const pfCommission = calculateBankCommission(pf);
+                        propertyData[prop].pf.amount = `${formatNumber(pf)} + ${formatNumber(pfCommission)}`;
+                        document.getElementById(`pf-amount-${properties.indexOf(prop)}`).value = propertyData[prop].pf.amount;
+                        output.push(`1% збір до ПФ - ${formatNumber(pf)} + комісія банка - ${formatNumber(pfCommission)}`);
+                        total += pf + pfCommission;
+                    }
+                    
+                    // Податки
+                    const taxOption = propertyData[prop].taxOption;
+                    
+                    if (taxOption !== 'без податків') {
+                        const pdfoRate = taxOption.includes('18%') ? 0.18 : 0.05;
+                        const pdfo = saleAmount * pdfoRate;
+                        const pdfoCommission = calculateBankCommission(pdfo);
+                        propertyData[prop].pdfo = `${formatNumber(pdfo)} + ${formatNumber(pdfoCommission)}`;
+                        document.getElementById(`pdfo-amount-${properties.indexOf(prop)}`).value = propertyData[prop].pdfo;
+                        
+                        const military = saleAmount * 0.05;
+                        const militaryCommission = calculateBankCommission(military);
+                        propertyData[prop].military = `${formatNumber(military)} + ${formatNumber(militaryCommission)}`;
+                        document.getElementById(`military-amount-${properties.indexOf(prop)}`).value = propertyData[prop].military;
+                        
+                        output.push(`${pdfoRate === 0.18 ? '18%' : '5%'} ПДФО ${prop} - ${formatNumber(pdfo)} + комісія банка - ${formatNumber(pdfoCommission)}`);
+                        output.push(`5% військовий збір ${prop} - ${formatNumber(military)} + комісія банка - ${formatNumber(militaryCommission)}`);
+                        total += pdfo + pdfoCommission + military + militaryCommission;
+                    }
+                    
+                    output.push('');
+                });
+                
+                if (!hasError) {
+                    // Оформлення
+                    if (propertyData.oformlennya.checked) {
+                        const oformStr = propertyData.oformlennya.amount.replace(/,/g, '').replace(/ /g, '');
+                        const oform = parseFloat(oformStr) || parseFloat(getDefaultOformlennya(propertyTypeSelect.value));
+                        output.push(`Оформлення – ${formatNumber(oform)}`);
+                        total += oform;
+                    }
+                    
+                    // Квитанції
+                    if (propertyData.kvitancii.checked) {
+                        const kvitStr = propertyData.kvitancii.amount.replace(/,/g, '').replace(/ /g, '');
+                        const kvit = parseFloat(kvitStr) || 1500;
+                        output.push(`Квитанції - ${formatNumber(kvit)} (перевірка з ДРРП по об'єкту та по суб'єкту + реєстрація права власності)`);
+                        total += kvit;
+                    }
+                    
+                    // Оцінка для кожного об'єкта
+                    properties.forEach(prop => {
+                        if (propertyData[prop].ocinka.checked) {
+                            const ocinkaStr = propertyData[prop].ocinka.amount.replace(/,/g, '').replace(/ /g, '');
+                            const ocinka = parseFloat(ocinkaStr) || 1000;
+                            output.push(`Оцінка ${prop} – ${formatNumber(ocinka)}`);
+                            total += ocinka;
+                        }
+                    });
+                    
+                    // Витяг ДЗК (якщо земля)
+                    if (propertyTypeSelect.value.toLowerCase().includes('земля') && propertyData.dzk && propertyData.dzk.checked) {
+                        const dzkStr = propertyData.dzk.amount.replace(/,/g, '').replace(/ /g, '');
+                        const dzk = parseFloat(dzkStr) || 1000;
+                        output.push(`Витяг ДЗК - ${formatNumber(dzk)}`);
+                        total += dzk;
+                    }
+                    
+                    // Заява с/г (якщо земля с/г)
+                    if (propertyTypeSelect.value.toLowerCase().includes('земля с/г') && propertyData.sg && propertyData.sg.checked) {
+                        const sgStr = propertyData.sg.amount.replace(/,/g, '').replace(/ /g, '');
+                        const sg = parseFloat(sgStr) || 700;
+                        output.push(`заява с/г - ${formatNumber(sg)}`);
+                        total += sg;
+                    }
+                    
+                    // Згода на продаж/купівлю
+                    ['продаж', 'купівлю'].forEach(item => {
+                        if (propertyData[`zgoda_${item}`] && propertyData[`zgoda_${item}`].checked) {
+                            const zgodaStr = propertyData[`zgoda_${item}`].amount.replace(/,/g, '').replace(/ /g, '');
+                            const zgoda = parseFloat(zgodaStr) || 500;
+                            output.push(`згода на ${item} - ${formatNumber(zgoda)}`);
+                            total += zgoda;
+                        }
+                    });
+                    
+                    // Оновлюємо загальні суми
+                    totalExact.textContent = `загальна сума точно: ${formatNumber(total)}`;
+                    const roundedTotal = Math.round(total / 50) * 50;
+                    totalRounded.textContent = `загальна сума: ${formatNumber(roundedTotal)}`;
+                    
+                    output.push(`\nзагальна сума точно: ${formatNumber(total)}`);
+                    output.push(`загальна сума: ${formatNumber(roundedTotal)}`);
+                }
+                
+                outputText.value = output.join('\n');
+            }
+            
+            function copyCalculation() {
+                const text = outputText.value;
+                const lines = text.split('\n');
+                const filteredLines = lines.filter(line => !line.startsWith('загальна сума точно:'));
+                const filteredText = filteredLines.join('\n');
+                
+                navigator.clipboard.writeText(filteredText).then(() => {
+                    showNotification('Розрахунок скопійовано!');
+                });
+            }
+            
+            function showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 1300);
+            }
+        });
+    </script>
+</body>
+</html>
