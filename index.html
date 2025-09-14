@@ -4,130 +4,239 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Калькулятор нотаріальних послуг</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #007bff;
-            --success-color: #28a745;
-            --light-gray: #f8f9fa;
-            --dark-gray: #343a40;
-            --border-color: #dee2e6;
-            --header-height: 80px;
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--light-gray);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 0;
             margin: 0;
-            padding-top: var(--header-height); /* Відступ для фіксованого хедера */
+            min-height: 100vh;
         }
 
         /* --- Верхня панель (хедер) --- */
         .main-header {
-            position: fixed;
+            position: sticky;
             top: 0;
             left: 0;
             width: 100%;
-            height: var(--header-height);
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 100px;
+            background: white;
+            box-shadow: var(--box-shadow);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 25px;
-            box-sizing: border-box;
+            padding: 0 30px;
             z-index: 1000;
+            transition: var(--transition);
         }
 
         .header-title {
-            font-size: 1.5em;
-            font-weight: 600;
-            color: var(--dark-gray);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title i {
+            font-size: 1.8rem;
         }
         
         .header-summary {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
+            cursor: pointer;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .header-summary:hover {
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .header-summary::after {
+            content: "Натисніть, щоб скопіювати розрахунок";
+            position: absolute;
+            bottom: -30px;
+            right: 0;
+            background: var(--dark);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: var(--transition);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .header-summary:hover::after {
+            opacity: 1;
+            bottom: -25px;
         }
 
         .total-display {
-            font-size: 1.6em;
-            font-weight: bold;
-            color: var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
-        
-        .total-display span {
-            font-size: 0.7em;
-            font-weight: normal;
-            color: #6c757d;
+
+        .total-display .label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .total-display .amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            transition: var(--transition);
+        }
+
+        .header-summary:hover .amount {
+            transform: scale(1.05);
         }
 
         /* --- Основний контейнер та форма --- */
         .main-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 30px auto;
-            padding: 25px;
+            padding: 30px;
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
 
-        h2, h3.section-title {
-            margin-top: 30px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
+        h2 {
+            color: var(--primary);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            font-size: 1.5rem;
+        }
+
+        h3.section-title {
+            margin: 35px 0 20px;
+            color: var(--secondary);
             padding-bottom: 10px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3.section-title i {
+            font-size: 1.2rem;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         
         .form-group label, .checkbox-label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label i, .checkbox-label i {
+            color: var(--primary);
+            font-size: 1.1rem;
         }
 
         input[type="number"], input[type="text"], select, textarea {
             width: 100%;
-            padding: 12px;
-            border-radius: 5px;
-            border: 1px solid var(--border-color);
-            box-sizing: border-box;
-            font-size: 1em;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid var(--light-gray);
+            background: white;
+            font-size: 1rem;
+            transition: var(--transition);
+            outline: none;
         }
 
         input[type="number"]:focus, input[type="text"]:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
         }
 
         .sale-amount-input {
             font-weight: bold;
-            font-size: 1.2em;
-            color: var(--primary-color);
+            font-size: 1.2rem;
+            color: var(--primary);
+            padding: 16px;
         }
 
         .property-section {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #fdfdfd;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            background-color: #fafbff;
+            transition: var(--transition);
+        }
+
+        .property-section:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
         
         .property-section h3 {
             margin-top: 0;
-            color: var(--primary-color);
-            text-transform: capitalize;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .property-section h3 i {
+            font-size: 1.3rem;
         }
         
         .input-group {
             display: flex;
-            gap: 5px;
+            gap: 10px;
+            align-items: center;
         }
         
         .custom-name-input {
@@ -135,84 +244,149 @@
             margin-left: 10px;
         }
 
-
         /* --- Чекбокси та кнопки --- */
         .checkbox-group {
             display: flex;
             align-items: center;
+            margin-bottom: 15px;
         }
 
         input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary-color);
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary);
             flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            margin-bottom: 0;
+            margin-left: 12px;
+            cursor: pointer;
+            font-weight: 500;
         }
 
         .btn {
-            padding: 12px 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: background-color 0.2s;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
         }
 
         .btn-success {
-            background-color: var(--success-color);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
         }
 
         .btn-success:hover {
-            background-color: #218838;
-        }
-        
-        .btn-small {
-            width: 40px;
-            padding: 10px;
-            font-size: 1.2em;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
         }
 
+        .btn-small {
+            width: 45px;
+            height: 45px;
+            padding: 0;
+            font-size: 1.3rem;
+            border-radius: 10px;
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+
+        .btn-small:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Сповіщення про копіювання */
         #copy-notification {
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: var(--dark-gray);
+            background: var(--dark);
             color: white;
-            padding: 12px 25px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
             opacity: 0;
-            transition: opacity 0.5s, bottom 0.5s;
+            transition: var(--transition);
             pointer-events: none;
             z-index: 1001;
+        }
+
+        #copy-notification.show {
+            opacity: 1;
+            bottom: 40px;
+        }
+
+        /* Адаптивність */
+        @media (max-width: 768px) {
+            .main-header {
+                flex-direction: column;
+                height: auto;
+                padding: 15px;
+            }
+            
+            .header-title {
+                margin-bottom: 15px;
+            }
+            
+            .total-display {
+                align-items: center;
+            }
+            
+            .total-display .amount {
+                font-size: 2rem;
+            }
+            
+            .main-container {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .input-group {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
 
     <header class="main-header">
-        <div class="header-title">Калькулятор послуг</div>
-        <div class="header-summary">
+        <div class="header-title">
+            <i class="fas fa-calculator"></i>
+            Калькулятор нотаріальних послуг
+        </div>
+        <div class="header-summary" id="copy-area">
             <div class="total-display">
-                <span>Загальна сума:</span>
-                <span id="total-rounded">0 грн</span>
+                <div class="label">Загальна сума:</div>
+                <div class="amount" id="total-rounded">0 грн</div>
             </div>
-            <button type="button" id="copy-button" class="btn btn-success">Скопіювати розрахунок</button>
         </div>
     </header>
 
     <main class="main-container">
         <form id="calculator-form">
-            <h2>Основна інформація</h2>
+            <h2><i class="fas fa-info-circle"></i> Основна інформація</h2>
             <div class="form-group">
-                <label for="header-text">Заголовок (для копіювання)</label>
+                <label for="header-text"><i class="fas fa-heading"></i> Заголовок (для копіювання)</label>
                 <textarea id="header-text" placeholder="Наприклад: Розрахунок витрат для Іванова І.І."></textarea>
             </div>
             <div class="form-group">
-                <label for="property-type">Тип об'єкта</label>
+                <label for="property-type"><i class="fas fa-home"></i> Тип об'єкта</label>
                 <select id="property-type">
                     <option>квартира</option>
                     <option>нежитлове приміщення</option>
@@ -230,31 +404,33 @@
 
             <div id="property-fields-container"></div>
             
-            <h3 class="section-title">Додаткові послуги та платежі</h3>
+            <h3 class="section-title"><i class="fas fa-plus-circle"></i> Додаткові послуги та платежі</h3>
             <div id="common-services-container"></div>
         </form>
     </main>
     
-    <div id="copy-notification">Детальний розрахунок скопійовано!</div>
+    <div id="copy-notification">
+        <i class="fas fa-check-circle"></i>
+        Детальний розрахунок скопійовано!
+    </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-
     // --- Глобальні змінні та DOM Елементи ---
     const form = document.getElementById('calculator-form');
     const totalRoundedSpan = document.getElementById('total-rounded');
-    const copyButton = document.getElementById('copy-button');
+    const copyArea = document.getElementById('copy-area');
     const copyNotification = document.getElementById('copy-notification');
     
     let debounceTimer;
-    let calculationText = ''; // Змінна для зберігання повного тексту розрахунку
+    let calculationText = '';
 
     // --- Ініціалізація ---
     function init() {
         generateFields();
         updateCalculation();
         form.addEventListener('input', scheduleUpdate);
-        copyButton.addEventListener('click', copyCalculation);
+        copyArea.addEventListener('click', copyCalculation);
         document.getElementById('property-type').addEventListener('change', () => {
             generateFields();
             updateCalculation();
@@ -282,15 +458,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const defaultTax = ["нежитлове приміщення", "гараж", "гараж (або нп)"].includes(prop) ? "5_1.5" : "0";
 
             section.innerHTML = `
-                <h3>Об'єкт: ${prop}</h3>
+                <h3><i class="fas fa-building"></i> Об'єкт: ${prop}</h3>
                 <div class="form-group">
-                    <label for="amount-${propId}">Сума продажу (грн):</label>
+                    <label for="amount-${propId}"><i class="fas fa-money-bill-wave"></i> Сума продажу (грн):</label>
                     <input type="number" id="amount-${propId}" class="sale-amount-input" value="0" min="0">
                 </div>
-                <div class="checkbox-group"><input type="checkbox" id="duty-${propId}" checked><label for="duty-${propId}" class="checkbox-label" style="margin-left: 10px;">1% мито</label></div>
-                ${!prop.toLowerCase().includes('земля') ? `<div class="checkbox-group" style="margin-top: 10px;"><input type="checkbox" id="pension-${propId}" checked><label for="pension-${propId}" class="checkbox-label" style="margin-left: 10px;">1% збір до ПФ</label></div>` : ''}
-                <div class="form-group" style="margin-top: 15px;">
-                    <label for="tax-${propId}">Податки:</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="duty-${propId}" checked>
+                    <label for="duty-${propId}" class="checkbox-label"><i class="fas fa-receipt"></i> 1% мито</label>
+                </div>
+                ${!prop.toLowerCase().includes('земля') ? `
+                <div class="checkbox-group">
+                    <input type="checkbox" id="pension-${propId}" checked>
+                    <label for="pension-${propId}" class="checkbox-label"><i class="fas fa-piggy-bank"></i> 1% збір до ПФ</label>
+                </div>` : ''}
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="tax-${propId}"><i class="fas fa-chart-pie"></i> Податки:</label>
                     <select id="tax-${propId}">
                         <option value="0" ${defaultTax === '0' ? 'selected' : ''}>Без податків</option>
                         <option value="5_1.5" ${defaultTax === '5_1.5' ? 'selected' : ''}>5% ПДФО + 1.5% Військовий збір</option>
@@ -313,26 +496,26 @@ document.addEventListener('DOMContentLoaded', () => {
             "квитанції": 1500, "оцінка": 1000, "витяг ДЗК": 1000, "заява с/г": 700, "згода": 500, "заява про розрахунок": 500, "інший платіж": 500
         };
 
-        let commonHtml = createServiceRow('оформлення', 'Оформлення', defaults.оформлення[propertyType] || defaults.оформлення.default, true, 1000);
-        commonHtml += createServiceRow('квитанції', 'Квитанції', defaults.квитанції, true, 500);
+        let commonHtml = createServiceRow('оформлення', 'Оформлення', defaults.оформлення[propertyType] || defaults.оформлення.default, true, 1000, 'file-contract');
+        commonHtml += createServiceRow('квитанції', 'Квитанції', defaults.квитанції, true, 500, 'receipt');
 
         properties.forEach(prop => {
-            commonHtml += createServiceRow(`оцінка-${prop.replace(/[\s()/]/g, '-')}`, `Оцінка ${prop}`, defaults.оцінка, true, 200);
+            commonHtml += createServiceRow(`оцінка-${prop.replace(/[\s()/]/g, '-')}`, `Оцінка ${prop}`, defaults.оцінка, true, 200, 'search-dollar');
         });
 
         if (propertyType.toLowerCase().includes('земля')) {
-            commonHtml += createServiceRow('витяг-дзк', 'Витяг ДЗК', defaults['витяг ДЗК'], true, 200);
+            commonHtml += createServiceRow('витяг-дзк', 'Витяг ДЗК', defaults['витяг ДЗК'], true, 200, 'file-alt');
         }
         if (propertyType.toLowerCase().includes('земля с/г')) {
-            commonHtml += createServiceRow('заява-сг', 'Заява с/г', defaults['заява с/г'], true, 0);
+            commonHtml += createServiceRow('заява-сг', 'Заява с/г', defaults['заява с/г'], true, 0, 'file-signature');
         }
 
-        commonHtml += createServiceRow('згода-продаж', 'Згода на продаж', defaults.згода, false, 500);
-        commonHtml += createServiceRow('згода-купівлю', 'Згода на купівлю', defaults.згода, false, 500);
-        commonHtml += createServiceRow('заява-розрахунок', 'Заява про повний розрахунок', defaults['заява про розрахунок'], false, 200);
+        commonHtml += createServiceRow('згода-продаж', 'Згода на продаж', defaults.згода, false, 500, 'signature');
+        commonHtml += createServiceRow('згода-купівлю', 'Згода на купівлю', defaults.згода, false, 500, 'signature');
+        commonHtml += createServiceRow('заява-розрахунок', 'Заява про повний розрахунок', defaults['заява про розрахунок'], false, 200, 'calculator');
         
         // --- ДОДАНО БЛОК ДЛЯ ІНШИХ ПЛАТЕЖІВ ---
-        commonHtml += `<h3 class="section-title">Інші платежі</h3>`;
+        commonHtml += `<h3 class="section-title"><i class="fas fa-ellipsis-h"></i> Інші платежі</h3>`;
         for (let i = 1; i <= 5; i++) {
             commonHtml += createCustomPaymentRow(i, defaults['інший платіж']);
         }
@@ -352,16 +535,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function createServiceRow(id, label, value, checked, step) {
+    function createServiceRow(id, label, value, checked, step, icon) {
         return `
             <div class="form-group">
                 <div class="checkbox-group">
                     <input type="checkbox" id="check-${id}" data-type="service" data-target="value-${id}" ${checked ? 'checked' : ''}>
-                    <label for="check-${id}" class="checkbox-label" style="margin-left: 10px;">${label}</label>
+                    <label for="check-${id}" class="checkbox-label"><i class="fas fa-${icon}"></i> ${label}</label>
                 </div>
                 <div class="input-group">
                     <input type="number" id="value-${id}" value="${value}" min="0">
-                    ${step > 0 ? `<button type="button" class="btn btn-small" data-step="${step}">-</button><button type="button" class="btn btn-small" data-step="${step}">+</button>` : ''}
+                    ${step > 0 ? `
+                    <button type="button" class="btn btn-small" data-step="${step}">-</button>
+                    <button type="button" class="btn btn-small" data-step="${step}">+</button>
+                    ` : ''}
                 </div>
             </div>`;
     }
@@ -466,14 +652,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Функція копіювання ---
     function copyCalculation() {
         const finalRoundedTotal = totalRoundedSpan.textContent;
-        const textToCopy = `${calculationText}\n\nзагальна сума: ${finalRoundedTotal}`;
+        const textToCopy = `${calculationText}\n\nЗагальна сума: ${finalRoundedTotal}`;
 
         navigator.clipboard.writeText(textToCopy).then(() => {
-            copyNotification.style.opacity = '1';
-            copyNotification.style.bottom = '20px';
+            copyNotification.classList.add('show');
             setTimeout(() => {
-                copyNotification.style.opacity = '0';
-                copyNotification.style.bottom = '0px';
+                copyNotification.classList.remove('show');
             }, 2000);
         }).catch(err => {
             console.error('Не вдалося скопіювати текст: ', err);
