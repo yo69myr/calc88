@@ -455,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const section = document.createElement('div');
             section.className = 'property-section';
             
-            const defaultTax = ["нежитлове приміщення", "гараж", "гараж (або нп)"].includes(prop) ? "5_1.5" : "0";
+            const defaultTax = ["нежитлове приміщення", "гараж", "гараж (або нп)"].includes(prop) ? "5_5" : "0";
 
             section.innerHTML = `
                 <h3><i class="fas fa-building"></i> Об'єкт: ${prop}</h3>
@@ -476,8 +476,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <label for="tax-${propId}"><i class="fas fa-chart-pie"></i> Податки:</label>
                     <select id="tax-${propId}">
                         <option value="0" ${defaultTax === '0' ? 'selected' : ''}>Без податків</option>
-                        <option value="5_1.5" ${defaultTax === '5_1.5' ? 'selected' : ''}>5% ПДФО + 1.5% Військовий збір</option>
-                        <option value="18_1.5" ${defaultTax === '18_1.5' ? 'selected' : ''}>18% ПДФО + 1.5% Військовий збір</option>
+                        <option value="5_5" ${defaultTax === '5_5' ? 'selected' : ''}>5% ПДФО + 5% Військовий збір</option>
+                        <option value="18_5" ${defaultTax === '18_5' ? 'selected' : ''}>18% ПДФО + 5% Військовий збір</option>
                     </select>
                 </div>
             `;
